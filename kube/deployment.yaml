@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: _PROJECT_NAME_, namespace: _NAMESPACE_, labels: {pod: _PROJECT_NAME_, version_tag: _VERSION_TAG_}}
+spec:
+  replicas: 1
+  selector: {matchLabels: {pod: _PROJECT_NAME_}}
+  template:
+    metadata: {labels: {pod: _PROJECT_NAME_, metrics: ready}}
+    spec:
+      volumes:
+      #TEMP LAYER
+      - {name: _PROJECT_NAME_-tmp, emptyDir: {}}
+      #PVC
+      - {name: _PROJECT_NAME_-vol, persistentVolumeClaim: {claimName: _PROJECT_NAME_-pvc}}
+      #CONFIG FILES
+      - {name: _PROJECT_NAME_-map-vol, configMap: {name: _PROJECT_NAME_-cm}}
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 24098
+        runAsGroup: 53765
+        fsGroup: 12789
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+      - name: _PROJECT_NAME_
+        image: _IMAGE_NAME_
+        imagePullPolicy: IfNotPresent
+        ports: [{containerPort: 5000, name: web}]
+        envFrom:
+        - secretRef: {name: _PROJECT_NAME_-sec}
+        - configMapRef: {name: _PROJECT_NAME_-map}
+        resources:
+          limits: {cpu: "150m", memory: "128Mi"}
+          requests: {cpu: "100m", memory: "64Mi"}
+        volumeMounts:
+        - {name: _PROJECT_NAME_-tmp, mountPath: /tmp}
+        - {name: _PROJECT_NAME_-vol, mountPath: /mnt}
+        - {name: _PROJECT_NAME_-map-vol, mountPath: /app}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+        
+
+

@@ -1,0 +1,10 @@
+---
+include: [
+    {project: kube/temp/pmp, file: ez-temp.yaml, ref: main},
+    {project: kube/temp/pmp, file: migrations/liquibase.yaml, ref: main},
+    {project: kube/temp/pmp, file: tests/dotnet.yaml, ref: main},
+    {project: kube/temp/pmp, file: tests/sast.yaml, ref: main}
+    ]
+stages: [prepare, test, build, migrations, deploy, release, publish]
+
+
