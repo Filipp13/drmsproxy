@@ -11,16 +11,14 @@ namespace CRM.HttpClient
             {
                 Value = originateCaseOut.CaseResponse.CaseType switch
                 {
-                    CaseType.ClientRetentionOnly => DRMSCaseType.ClientandEngagementAcceptance,
-                    CaseType.ClientAcceptanceOnly => DRMSCaseType.EngagmentContinuance,
-                    CaseType.ClientandEngagementAcceptance => DRMSCaseType.ClientRetentionandEngagementContinuance,
+                    CaseType.ClientandEngagementAcceptance => DRMSCaseType.ClientandEngagementAcceptance,
                     CaseType.ClientRetentionandEngagementAcceptance => DRMSCaseType.ClientRetentionandEngagementAcceptance,
-                    CaseType.ClientRetentionandEngagementContinuance => DRMSCaseType.ClientRetentionandEngagementAcceptance,
-                    CaseType.EngagementAcceptance => DRMSCaseType.ClientRetentionandEngagementAcceptance,
-                    CaseType.EngagmentContinuance => DRMSCaseType.ClientRetentionandEngagementAcceptance,
+                    CaseType.ClientRetentionandEngagementContinuance => DRMSCaseType.ClientRetentionandEngagementContinuance,
+                    CaseType.EngagementAcceptance => DRMSCaseType.EngagementAcceptance,
+                    CaseType.EngagmentContinuance => DRMSCaseType.EngagmentContinuance,
+                    _ => null
                 };
             }
-            else { }
         }
 
         public DRMSCaseType? Value { get; set; }

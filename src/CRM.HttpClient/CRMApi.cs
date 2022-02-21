@@ -58,26 +58,6 @@ namespace CRM.HttpClient
             }
         }
 
-        public async Task<Guid> GetLookupOppotunityByName(string name)
-        {
-            var stream = await client.GetStreamAsync(
-                $"/CISIntegra/api/data/{options.ApiVersion}/opportunities?$select=opportunityid&$filter=name eq '{name}'")
-                .ConfigureAwait(false);
-
-            var response = await JsonSerializer.DeserializeAsync<Oppotunity>(stream, serializerOptions);
-
-            if (response is null || response.Value is null)
-                return Guid.Empty;
-
-            return response.Value.Count switch
-            {
-                1 => response.Value[0].Opportunityid,
-                _ => Guid.Empty,
-            };
-
-        }
-
-
         public async Task<ModelForRequest> GetLookups(
             string opportunityName,
             string caserequestor,
@@ -87,7 +67,7 @@ namespace CRM.HttpClient
             string leadEngagementPartner,
             string leadEngagementManager)
         {
-            var operations = BuildOperationsNew(
+            var operations = BuildOperations(
                                 opportunityName,
                                 caserequestor,
                                 productName,
@@ -153,81 +133,40 @@ namespace CRM.HttpClient
             return model;
         }
 
-        private List<LookupModel> BuildOperationsNew(
-          string opportunityName,
-          string caserequestor,
-          string productName,
-          string accountId,
-          string countryName,
-          string leadEngagementPartner,
-          string leadEngagementManager)
+        private List<ILookupEntity<IEntity>> BuildOperations(
+        string opportunityName,
+        string caserequestor,
+        string productName,
+        string accountId,
+        string countryName,
+        string leadEngagementPartner,
+        string leadEngagementManager)
         {
-            var operations = new List<LookupModel>();
-            operations.Add(new Oppotunity(opportunityName, options.ApiVersion, serializerOptions));
-            operations.Add(new CaseRequestor(caserequestor, options.ApiVersion, serializerOptions));
-            operations.Add(new ClientMemberFirm(accountId, options.ApiVersion, serializerOptions));
-            operations.Add(new Product(productName, options.ApiVersion, serializerOptions));
-            operations.Add(new Country(countryName, options.ApiVersion, serializerOptions));
-            operations.Add(new LeadEngagementPartner(leadEngagementPartner, options.ApiVersion, serializerOptions));
-            operations.Add(new LeadEngagementManager(leadEngagementManager, options.ApiVersion, serializerOptions));
+            var operations = new List<ILookupEntity<IEntity>>();
 
+            operations.Add(new LookupEntity<CaseRequestorValue>(
+                $"GET /CISIntegra/api/data/{options.ApiVersion}/systemusers?$select=identityid&$filter=domainname eq '{caserequestor}' HTTP/1.1", 
+                (values, model) => model.CaseRequestor = values.FirstOrDefault()));
+
+            operations.Add(new LookupEntity<OpportunityValue>(
+                $"GET /CISIntegra/api/data/{options.ApiVersion}/opportunities?$select=opportunityid&$filter=name eq '{opportunityName}' HTTP/1.1",
+                (values, model) => model.Oppotunity = values.FirstOrDefault()));
+
+            operations.Add(new LookupEntity<ClientMemberFirmValue>(
+               $"GET /CISIntegra/api/data/{options.ApiVersion}/accounts?$select=accountid&$filter=name eq '{accountId}' HTTP/1.1",
+               (values, model) => model.ClientMemberFirm = values.FirstOrDefault()));
+
+            operations.Add(new LookupEntity<LeadEngagementPartnerValue>(
+               $"GET /CISIntegra/api/data/{options.ApiVersion}/systemusers?$select=identityid&$filter=domainname eq '{leadEngagementPartner}' HTTP/1.1",
+               (values, model) => model.LeadEngagementPartner = values.FirstOrDefault()));
+
+            operations.Add(new LookupEntity<LeadEngagementManagerValue>(
+              $"GET /CISIntegra/api/data/{options.ApiVersion}/systemusers?$select=identityid&$filter=domainname eq '{leadEngagementManager}' HTTP/1.1",
+              (values, model) => model.LeadEngagementManager = values.FirstOrDefault()));
 
             return operations;
         }
 
-
-
-        //    private List<(string, Func<string, ModelForRequest, ModelForRequest>)> BuildOperations(
-        //    string opportunityName,
-        //    string caserequestor,
-        //    string productName,
-        //    string accountId,
-        //    string countryName)
-        //{
-        //    List<(string, Func<string, ModelForRequest, ModelForRequest>)> operations = new();
-
-        //    operations.Add(new($"GET /CISIntegra/api/data/{options.ApiVersion}/opportunities?$select=opportunityid&$filter=name eq '{opportunityName}' HTTP/1.1",
-        //        (response, model) =>
-        //        {
-        //            var oppotunity = JsonSerializer.Deserialize<Oppotunity>(response, serializerOptions);
-        //            model.Oppotunity = oppotunity;
-        //            return model;
-        //        }));
-
-        //    operations.Add(new($"GET /CISIntegra/api/data/{options.ApiVersion}/systemusers?$select=identityid&$filter=domainname eq '{caserequestor}' HTTP/1.1",
-        //        (response, model) =>
-        //        {
-        //            var caserequestor = JsonSerializer.Deserialize<CaseRequestor>(response, serializerOptions);
-        //            model.CaseRequestor = caserequestor;
-        //            return model;
-        //        }));
-
-        //    operations.Add(new($"GET /CISIntegra/api/data/{options.ApiVersion}/nav_oppproducts?$select=nav_oppproductid&$filter=nav_name eq '{productName}' HTTP/1.1",
-        //        (response, model) =>
-        //        {
-        //            var product = JsonSerializer.Deserialize<Product>(response, serializerOptions);
-        //            model.Product = product;
-        //            return model;
-        //        }));
-
-        //    operations.Add(new($"GET /CISIntegra/api/data/{options.ApiVersion}/accounts?$select=accountid&$filter=accountid eq '{accountId}' HTTP/1.1",
-        //        (response, model) =>
-        //        {
-        //            var client = JsonSerializer.Deserialize<ClientMemberFirm>(response, serializerOptions);
-        //            model.ClientMemberFirm = client;
-        //            return model;
-        //        }));
-
-        //    operations.Add(new($"GET /CISIntegra/api/data/{options.ApiVersion}/nav_countries?$select=nav_countryid&$filter=nav_name eq '{countryName}' HTTP/1.1",
-        //        (response, model) =>
-        //        {
-        //            var country = JsonSerializer.Deserialize<Country>(response, serializerOptions);
-        //            model.Country = country;
-        //            return model;
-        //        }));
-
-        //    return operations;
-        //}
 
     }
 }

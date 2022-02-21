@@ -29,24 +29,24 @@ namespace Drms.Proxy
         {
             var request = context.Request;
 
-            //if (HttpMethods.IsPost(request.Method))
-            //{
-            //    int requestLen = (int)request.ContentLength;
-            //    byte[] buffer = new byte[requestLen];
-            //    int numButesRead = 0;
-            //    context.Request.Body.Position = 0;
-            //    while (numButesRead < requestLen)
-            //    {
-            //        int readBytes = await request.Body.ReadAsync(buffer, numButesRead, requestLen - numButesRead);
-            //        numButesRead += readBytes;
-            //    }
-            //    context.Request.Body.Position = 0;
+            if (HttpMethods.IsPost(request.Method))
+            {
+                int requestLen = (int)request.ContentLength;
+                byte[] buffer = new byte[requestLen];
+                int numButesRead = 0;
+                context.Request.Body.Position = 0;
+                while (numButesRead < requestLen)
+                {
+                    int readBytes = await request.Body.ReadAsync(buffer, numButesRead, requestLen - numButesRead);
+                    numButesRead += readBytes;
+                }
+                context.Request.Body.Position = 0;
 
-            //    //logger.LogInformation(Encoding.UTF8.GetString(buffer));
-            //}
+                logger.LogInformation(Encoding.UTF8.GetString(buffer));
+            }
 
-            var newCase = request.Headers.TryGetValue("action", out StringValues action)
-                && action.ToString() == "http://schemas.deloitte.com/oim/drms/2013/01/25/service/CaseManagementService/OriginateCase";
+            var newCase = request.Headers.TryGetValue("Content-Type", out StringValues action)
+                && action.ToString() == "application/soap+xml;charset=UTF-8;action=\"http://schemas.deloitte.com/oim/drms/2013/01/25/service/CaseManagementService/OriginateCase\"";
 
             logger.LogInformation("Action header is {action}", action);
 

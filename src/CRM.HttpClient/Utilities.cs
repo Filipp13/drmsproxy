@@ -15,7 +15,6 @@ namespace CRM.HttpClient
     {
         public static async Task<MultipartReader> ParseMultipartMixedRequestAsync(HttpResponseMessage request)
         {
-            // Extract, sanitize and validate boundry
             var boundary = HeaderUtilities.RemoveQuotes(
                 MediaTypeHeaderValue.Parse(request.Content.Headers.ContentType.ToString()).Boundary).Value;
 
@@ -25,19 +24,9 @@ namespace CRM.HttpClient
                 throw new InvalidDataException("boundry is shot");
             }
 
-            // Create a new reader based on that boundry
-            return new MultipartReader(boundary, await request.Content.ReadAsStreamAsync());
-
-           
+            return new MultipartReader(boundary, await request.Content.ReadAsStreamAsync());  
         }
     }
 
-    public sealed class ParsedSection
-    {
-        public bool IsJson { get; set; }
-        public bool IsXml { get; set; }
-        public string Name { get; set; }
-        public string Data { get; set; }
-        public Encoding Encoding { get; set; }
-    }
+   
 }

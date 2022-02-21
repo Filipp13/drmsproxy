@@ -2,18 +2,18 @@
 {
     public sealed class ModelForRequest
     {
-        public Oppotunity Oppotunity { get; set; }
+        public OpportunityValue? Oppotunity { get; set; }
 
-        public CaseRequestor CaseRequestor { get; set; }
+        public CaseRequestorValue? CaseRequestor { get; set; }
 
-        public LeadEngagementPartner LeadEngagementPartner { get; set; }
+        public LeadEngagementPartnerValue? LeadEngagementPartner { get; set; }
 
-        public LeadEngagementManager LeadEngagementManager { get; set; }
+        public LeadEngagementManagerValue? LeadEngagementManager { get; set; }
 
-        public Product Product { get; set; }
+        public ProductValue? Product { get; set; }
 
-        public ClientMemberFirm ClientMemberFirm { get; set; }
+        public ClientMemberFirmValue? ClientMemberFirm { get; set; }
 
-        public Country Country { get; set; }
+        public CountryValue? Country { get; set; }
     }
 }

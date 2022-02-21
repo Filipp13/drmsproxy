@@ -6,8 +6,6 @@ namespace CRM.HttpClient
     {
         Task<bool> CreateDrmsCase(NewCaseRequest createCaseRequest);
 
-        Task<Guid> GetLookupOppotunityByName(string name);
-
         Task<ModelForRequest> GetLookups(
             string opportunityName,
             string caserequestor,

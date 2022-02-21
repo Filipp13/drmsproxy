@@ -1,7 +1,5 @@
 ﻿using CRM.HttpClient;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Drms.Proxy
@@ -46,13 +44,15 @@ namespace Drms.Proxy
                 var caseId = 1234567;
 
                 if (true)
+                {
 #else
-                var caseId = response.Body.OriginateCaseOut_Case.CaseResponse.CaseId;
                 if (response.Body.OriginateCaseOut_Case is not null
                     && response.Body.OriginateCaseOut_Case.CaseResponse is not null
                     && response.Body.OriginateCaseOut_Case.CaseResponse.CaseId > 0)
-#endif
                 {
+                    var caseId = response.Body.OriginateCaseOut_Case.CaseResponse.CaseId;
+#endif
+
                     var lookups = await crmApi.GetLookups(
                      modelRequest.NewCaseInfoRequest.Opportunity.Name.Value,
                      requestObj.Header.HeaderRequest.UserID,
@@ -66,17 +66,17 @@ namespace Drms.Proxy
                         modelRequest.NewCaseInfoRequest.CaseName.Value,
                         caseId,
                         1,
-                        lookups.CaseRequestor.SafeValue.SystemuserIdOData,
-                        lookups.Oppotunity.SafeValue.OpportunityidOData,
+                        lookups.CaseRequestor?.SystemuserIdOData,
+                        lookups.Oppotunity?.OpportunityidOData,
                         null!,
                         new IsClientRetentionRequired(modelRequest.NewCaseInfoRequest.IsClientRetentionRequired.Value),
                         new RecommendedClientRisk(modelRequest.NewCaseInfoRequest.RecommendedRiskClassification.RecommendedClientRisk),
                         new RecommendedEngagementRisk(modelRequest.NewCaseInfoRequest.RecommendedRiskClassification.RecommendedEngagementRisk),
                         new PublicInterestEntity(modelRequest.NewCaseInfoRequest.PublicInterestEntity.Value),
-                        lookups.LeadEngagementPartner.SafeValue.SystemuserIdOData,
-                        lookups.LeadEngagementManager.SafeValue.SystemuserIdOData,
+                        lookups.LeadEngagementPartner?.SystemuserIdOData,
+                        lookups.LeadEngagementManager?.SystemuserIdOData,
                         false,
-                        lookups.ClientMemberFirm.SafeValue.AccountidOData,
+                        lookups.ClientMemberFirm?.AccountidOData,
                         808630000, // draft
                         "",
                         false,
@@ -87,7 +87,7 @@ namespace Drms.Proxy
                         //(decimal)200.0,
                         new DRMSCase(response.Body.OriginateCaseOut_Case),
                         $"{options.PmpAddress}{modelRequest.NewCaseInfoRequest.Opportunity.Id.Value}",
-                        lookups.CaseRequestor.SafeValue.SystemuserIdOData)
+                        lookups.CaseRequestor?.SystemuserIdOData)
                         ))
                     {
                         // ok
