@@ -2,12 +2,12 @@
 {
     public class IsClientRetentionRequired
     {
-        public IsClientRetentionRequired(bool isClientRetention)
+        public IsClientRetentionRequired(bool? isClientRetention)
         {
             Value = isClientRetention;
         }
 
-        public bool Value { get; set; }
+        public bool? Value { get; set; }
     }
 
     public enum TwoOption

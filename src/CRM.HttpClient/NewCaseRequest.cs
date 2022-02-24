@@ -22,7 +22,7 @@ namespace CRM.HttpClient
             int status, 
             string descriptionOfBusinessOperations,
             bool drmsClient,
-            byte ratePerHour, 
+            double? ratePerHour, 
             string drmsDescription,
             //string lcspId,
             //string? country,
@@ -77,7 +77,7 @@ namespace CRM.HttpClient
         public string? OppproductId { get; }
 
         [JsonPropertyName("nav_isclientretentionrequired")]
-        public bool IsClientRetentionRequired { get; }
+        public bool? IsClientRetentionRequired { get; }
 
         [JsonPropertyName("nav_recclientrisk")]
         public int RecommendedClientRisk { get; }
@@ -104,7 +104,7 @@ namespace CRM.HttpClient
         public bool DrmsClient { get; }
 
         [JsonPropertyName("new_rateperhour")]
-        public byte RatePerHour { get; }
+        public double? RatePerHour { get; }
 
         [JsonPropertyName("nav_drmsdescription")]
         public string DrmsDescription { get; }

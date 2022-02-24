@@ -1,14 +1,16 @@
-﻿namespace CRM.HttpClient
+﻿using DRMSServiceReference;
+
+namespace CRM.HttpClient
 {
     public class PublicInterestEntity
     {
-        public PublicInterestEntity(string interest)
+        public PublicInterestEntity(PIEType? pIEType)
         {
-            Value = interest switch
+            Value = pIEType switch
             {
-                "NonPIE" => InterestType.NonPIE,
-                "PIEandListed" => InterestType.PIEandListed,
-                "PIEandNotListed" => InterestType.PIEandNotListed,
+                PIEType.NonPIE => InterestType.NonPIE,
+                PIEType.PIEandListed => InterestType.PIEandListed,
+                PIEType.PIEandNotListed => InterestType.PIEandNotListed,
                 _ => InterestType.Unknown
             };
         }

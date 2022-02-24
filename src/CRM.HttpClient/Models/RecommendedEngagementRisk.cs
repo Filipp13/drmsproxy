@@ -1,14 +1,16 @@
-﻿namespace CRM.HttpClient
+﻿using DRMSServiceReference;
+
+namespace CRM.HttpClient
 {
     public class RecommendedEngagementRisk
     {
-        public RecommendedEngagementRisk(string risk)
+        public RecommendedEngagementRisk(RiskClassification riskClassification)
         {
-            Value = risk switch
+            Value = riskClassification switch
             {
-                "NormalRisk" => RiskType.NormalRisk,
-                "GreateThanNormalRisk" => RiskType.GreateThanNormalRisk,
-                "MuchGreaterThanNormalRisk" => RiskType.MuchGreaterThanNormalRisk,
+                RiskClassification.NormalRisk => RiskType.NormalRisk,
+                RiskClassification.GreaterThanNormalRisk => RiskType.GreateThanNormalRisk,
+                RiskClassification.MuchGreaterThanNormalRisk => RiskType.MuchGreaterThanNormalRisk,
                 _ => RiskType.Unknown
             };
         }

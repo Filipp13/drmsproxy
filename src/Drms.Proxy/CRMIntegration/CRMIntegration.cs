@@ -1,5 +1,6 @@
 ﻿using CRM.HttpClient;
 using Microsoft.Extensions.Options;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace Drms.Proxy
@@ -35,9 +36,13 @@ namespace Drms.Proxy
                 }
                 request.Body.Position = 0;
 
-                var requestObj = DeserializeStream<DRMS.Request.Envelope>(buffer);
+
+                var requestObj = DeserializeStream<DRMSServiceReference.Envelope>(buffer);
                 var modelRequest = requestObj.Body.OriginateCaseIn_Case;
                 var bytes = await httpResponse.Content.ReadAsByteArrayAsync();
+
+                logger.LogInformation(Encoding.UTF8.GetString(bytes));
+
                 var response = DeserializeStream<DRMS.Response.Envelope>(bytes);
 
 #if DEBUG
