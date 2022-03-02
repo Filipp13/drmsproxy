@@ -36,6 +36,7 @@ namespace Drms.Proxy
                 }
                 request.Body.Position = 0;
 
+                logger.LogInformation(Encoding.UTF8.GetString(buffer));
 
                 var requestObj = DeserializeStream<DRMSServiceReference.Envelope>(buffer);
                 var modelRequest = requestObj.Body.OriginateCaseIn_Case;

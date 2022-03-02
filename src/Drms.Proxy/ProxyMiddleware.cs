@@ -1,7 +1,6 @@
 ﻿using DRMS.HttpClient;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using System.Text;
 
 namespace Drms.Proxy
 {
@@ -29,36 +28,17 @@ namespace Drms.Proxy
         {
             var request = context.Request;
 
-            if (HttpMethods.IsPost(request.Method))
-            {
-                int requestLen = (int)request.ContentLength;
-                byte[] buffer = new byte[requestLen];
-                int numButesRead = 0;
-                context.Request.Body.Position = 0;
-                while (numButesRead < requestLen)
-                {
-                    int readBytes = await request.Body.ReadAsync(buffer, numButesRead, requestLen - numButesRead);
-                    numButesRead += readBytes;
-                }
-                context.Request.Body.Position = 0;
-
-                logger.LogInformation(Encoding.UTF8.GetString(buffer));
-            }
-
             var newCase = request.Headers.TryGetValue("Content-Type", out StringValues action)
                 && action.ToString() == "application/soap+xml;charset=UTF-8;action=\"http://schemas.deloitte.com/oim/drms/2013/01/25/service/CaseManagementService/OriginateCase\"";
 
-            logger.LogInformation("Action header is {action}", action);
+            logger.LogTrace("Action header is {action}", action);
 
             var httpClient = context.RequestServices
-            .GetService<IHttpClientFactory>()
-            .CreateClient("drmsclient");
+            .GetService<IHttpClientFactory>()?
+            .CreateClient("drmsclient") ?? throw new InvalidOperationException("drmsclient is null");
 
             var proxiedRequest = await context.CreateProxiedHttpRequest($"{options.ProxyHost}{request.Path}");
             var response = await context.SendProxiedHttpRequestAsync(proxiedRequest, httpClient);
-
-            //var proxyResponse = await response.Content.ReadAsStringAsync();
-            //logger.LogInformation("Proxy response {proxyResponse}", proxyResponse);
 
             if (newCase)
             {
@@ -82,35 +62,6 @@ namespace Drms.Proxy
             }
 
             await context.WriteProxiedHttpResponseAsync(response);
-
-            ////var result = await crmApi.CreateDrmsCase(new CreateCaseRequest("test1", 1384535));
-            //await crmntegration.CreateDrmsCase(request, response);
-
-            //await context.WriteProxiedHttpResponseAsync(response);
-            //if (HttpMethods.IsPost(request.Method))
-            //{
-            //    int requestLen = (int)request.ContentLength;
-            //    byte[] buffer = new byte[requestLen];
-            //    int numButesRead = 0;
-            //    context.Request.Body.Position = 0;
-            //    while (numButesRead < requestLen)
-            //    {
-            //        int readBytes = await request.Body.ReadAsync(buffer, numButesRead, requestLen - numButesRead);
-            //        numButesRead += readBytes;
-            //    }
-            //    context.Request.Body.Position = 0;
-
-            //    using (Stream stream = new MemoryStream(buffer))
-            //    {
-            //        XElement xml = await XElement.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-            //        var body = FindDescendants(xml, "Body").FirstOrDefault();
-            //        var name = (body.FirstNode as XElement).Name.LocalName;
-            //    }
-
-            //}
-
-
-            //await next(context);
         }
 
 
