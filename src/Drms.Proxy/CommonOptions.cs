@@ -8,5 +8,7 @@
         /// 
         /// </summary>
         public string PmpAddress { get; set; }
+
+        public bool EnableProxy { get; set; } = false;
     }
 }

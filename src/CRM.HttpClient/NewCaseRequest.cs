@@ -27,9 +27,10 @@ namespace CRM.HttpClient
             //string lcspId,
             //string? country,
             //decimal aggregateFee,
-            DRMSCase drmsCase,
+            //DRMSCase drmsCase,
             string linkToPMP,
-            string? owner)
+            string? owner,
+            DateTime statusDate)
         {
             Name = name;
             CaseId = caseId;
@@ -53,9 +54,10 @@ namespace CRM.HttpClient
             //LcspId = lcspId;
             //Country = country;
             //AggregateFee = aggregateFee;
-            DRMSCaseType = drmsCase.Value is null ? null! : (int)drmsCase.Value;
+            //DRMSCaseType = drmsCase.Value is null ? null! : (int)drmsCase.Value;
             LinkToPMP = linkToPMP;
             Owner = owner;
+            StatusDate = statusDate;
         }
 
         [JsonPropertyName("nav_name")]
@@ -127,13 +129,16 @@ namespace CRM.HttpClient
         //[JsonPropertyName("nav_aggregatefee")]
         //public decimal AggregateFee { get; }
 
-        [JsonPropertyName("nav_type")]
-        public int? DRMSCaseType { get; }
+        //[JsonPropertyName("nav_type")]
+        //public int? DRMSCaseType { get; }
 
         [JsonPropertyName("dlt_linktopmp")]
         public string? LinkToPMP { get; }
 
         [JsonPropertyName("ownerid@odata.bind")]
         public string? Owner { get; }
+
+        [JsonPropertyName("nav_datestatus")]
+        public DateTime StatusDate { get; }
     }
 }

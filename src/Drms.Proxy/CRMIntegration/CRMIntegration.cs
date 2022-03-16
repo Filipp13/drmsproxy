@@ -40,23 +40,25 @@ namespace Drms.Proxy
 
                 var requestObj = DeserializeStream<DRMSServiceReference.Envelope>(buffer);
                 var modelRequest = requestObj.Body.OriginateCaseIn_Case;
-                var bytes = await httpResponse.Content.ReadAsByteArrayAsync();
 
-                logger.LogInformation(Encoding.UTF8.GetString(bytes));
-
-                var response = DeserializeStream<DRMS.Response.Envelope>(bytes);
-
+                DRMS.Response.Envelope response = null;
+                if (options.EnableProxy)
+                {
+                    var bytes = await httpResponse.Content.ReadAsByteArrayAsync();
+                    logger.LogInformation(Encoding.UTF8.GetString(bytes));
+                    response = DeserializeStream<DRMS.Response.Envelope>(bytes);
+                }
 #if DEBUG
-                var caseId = 1234567;
+                var caseId = 0;
 
                 if (true)
                 {
 #else
-                if (response.Body.OriginateCaseOut_Case is not null
+                if (!options.EnableProxy || (response?.Body?.OriginateCaseOut_Case is not null
                     && response.Body.OriginateCaseOut_Case.CaseResponse is not null
-                    && response.Body.OriginateCaseOut_Case.CaseResponse.CaseId > 0)
+                    && response.Body.OriginateCaseOut_Case.CaseResponse.CaseId > 0))
                 {
-                    var caseId = response.Body.OriginateCaseOut_Case.CaseResponse.CaseId;
+                    var caseId = options.EnableProxy ? response.Body.OriginateCaseOut_Case.CaseResponse.CaseId : 0;
 #endif
 
                     var lookups = await crmApi.GetLookups(
@@ -83,7 +85,7 @@ namespace Drms.Proxy
                         lookups.LeadEngagementManager?.SystemuserIdOData,
                         false,
                         lookups.ClientMemberFirm?.AccountidOData,
-                        808630000, // draft
+                        options.EnableProxy ? 808630000 :808630004, // draft or approved
                         "",
                         false,
                         modelRequest.EngagementInfo.RatePerHour.Value,
@@ -91,9 +93,13 @@ namespace Drms.Proxy
                         //"",
                         //lookups.Country.SafeValue.CountryIdOData,
                         //(decimal)200.0,
-                        new DRMSCase(response.Body.OriginateCaseOut_Case),
-                        $"{options.PmpAddress}{modelRequest.NewCaseInfoRequest.Opportunity.Id.Value}",
-                        lookups.CaseRequestor?.SystemuserIdOData)
+                        //new DRMSCase(response.Body.OriginateCaseOut_Case),
+                        string.Format(options.PmpAddress, 
+                            modelRequest.NewCaseInfoRequest.Opportunity.Id.Value,
+                            modelRequest.NewCaseInfoRequest.ClientMemberFirmClientId.Value,
+                            modelRequest.NewCaseInfoRequest.ParentCaseId.Value),
+                        lookups.CaseRequestor?.SystemuserIdOData,
+                        DateTime.Now)
                         ))
                     {
                         // ok

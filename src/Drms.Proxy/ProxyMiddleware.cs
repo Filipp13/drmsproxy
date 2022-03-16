@@ -1,6 +1,7 @@
 ﻿using DRMS.HttpClient;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using System.Net;
 
 namespace Drms.Proxy
 {
@@ -11,17 +12,20 @@ namespace Drms.Proxy
         private readonly ILogger<ProxyMiddleware> logger;
         private readonly ICRMIntegration crmntegration;
         private readonly ProxyMiddlewareOptions options;
+        private readonly CommonOptions commonOptions;
 
         public ProxyMiddleware(
             RequestDelegate next,
             ILogger<ProxyMiddleware> logger,
             ICRMIntegration crmntegration,
-            IOptions<ProxyMiddlewareOptions> options)
+            IOptions<ProxyMiddlewareOptions> options,
+            IOptions<CommonOptions> commonOptions)
         {
             this.next = next;
             this.logger = logger;
             this.crmntegration = crmntegration;
             this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            this.commonOptions = commonOptions?.Value ?? throw new ArgumentNullException(nameof(commonOptions));
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -33,12 +37,17 @@ namespace Drms.Proxy
 
             logger.LogTrace("Action header is {action}", action);
 
-            var httpClient = context.RequestServices
-            .GetService<IHttpClientFactory>()?
-            .CreateClient("drmsclient") ?? throw new InvalidOperationException("drmsclient is null");
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-            var proxiedRequest = await context.CreateProxiedHttpRequest($"{options.ProxyHost}{request.Path}");
-            var response = await context.SendProxiedHttpRequestAsync(proxiedRequest, httpClient);
+            if (commonOptions.EnableProxy)
+            {
+                var httpClient = context.RequestServices
+                .GetService<IHttpClientFactory>()?
+                .CreateClient("drmsclient") ?? throw new InvalidOperationException("drmsclient is null");
+
+                var proxiedRequest = await context.CreateProxiedHttpRequest($"{options.ProxyHost}{request.Path}");
+                response = await context.SendProxiedHttpRequestAsync(proxiedRequest, httpClient);
+            }
 
             if (newCase)
             {
