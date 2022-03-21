@@ -2,6 +2,6 @@
 {
     public interface ICRMIntegration
     {
-        Task<bool> CreateDrmsCase(HttpRequest httpRequest, HttpResponseMessage httpResponse);
+        Task<bool> CreateDrmsCase(byte[] request, byte[] drmsResponse);
     }
 }

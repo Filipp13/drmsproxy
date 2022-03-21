@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using System.Net;
+using System.Text;
 
 namespace Drms.Proxy
 {
@@ -55,13 +56,35 @@ namespace Drms.Proxy
 
                 try
                 {
-                    if (await crmntegration.CreateDrmsCase(request, response))
+                    if (HttpMethods.IsPost(request.Method))
                     {
-                        logger.LogInformation("New case created in Integra");
-                    }
-                    else
-                    {
-                        logger.LogError("New case creating failed in Integra");
+                        int requestLen = (int)request.ContentLength;
+                        byte[] buffer = new byte[requestLen];
+                        int numButesRead = 0;
+                        request.Body.Position = 0;
+                        while (numButesRead < requestLen)
+                        {
+                            int readBytes = await request.Body.ReadAsync(buffer, numButesRead, requestLen - numButesRead);
+                            numButesRead += readBytes;
+                        }
+                        request.Body.Position = 0;
+
+                        var drmsResponse = new byte[0];
+
+                        if (commonOptions.EnableProxy)
+                        {
+                            drmsResponse = await response.Content.ReadAsByteArrayAsync();
+                            logger.LogInformation(Encoding.UTF8.GetString(drmsResponse));
+                        }
+
+                        if (await crmntegration.CreateDrmsCase(buffer, drmsResponse))
+                        {
+                            logger.LogInformation("New case created in Integra");
+                        }
+                        else
+                        {
+                            logger.LogError("New case creating failed in Integra");
+                        }
                     }
                 }
                 catch (Exception ex)
