@@ -33,6 +33,8 @@ namespace Drms.Proxy
                 }
                 else
                 {
+                    logger.LogError("Создание кейса не успешно",
+                  @event.BasicProperties.MessageId);
                     consumer.Model.BasicNack(@event.DeliveryTag, false, true);
                 }
 
