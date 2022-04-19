@@ -713,6 +713,8 @@ namespace DRMSServiceReference
         
         /// <remarks/>
         Unknown,
+
+        DoNotKnow,
     }
     
     /// <remarks/>

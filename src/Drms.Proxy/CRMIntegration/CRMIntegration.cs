@@ -56,7 +56,7 @@ namespace Drms.Proxy
 
                 if (await crmApi.CreateDrmsCase(new NewCaseRequest(
                     modelRequest.NewCaseInfoRequest.CaseName.Value,
-                    caseId,
+                    //caseId,
                     1,
                     lookups.CaseRequestor?.SystemuserIdOData,
                     lookups.Oppotunity?.OpportunityidOData,

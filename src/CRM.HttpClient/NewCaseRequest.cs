@@ -6,7 +6,7 @@ namespace CRM.HttpClient
     {
         public NewCaseRequest(
             string name, 
-            int caseId, 
+            //int caseId, 
             int statusCode, 
             string? caseRequestor,
             string? opportunity,
@@ -33,7 +33,7 @@ namespace CRM.HttpClient
             DateTime statusDate)
         {
             Name = name;
-            CaseId = caseId;
+            //CaseId = caseId;
             StatusCode = statusCode;
             CaseRequestor = caseRequestor;
             Opportunity = opportunity;
@@ -63,8 +63,8 @@ namespace CRM.HttpClient
         [JsonPropertyName("nav_name")]
         public string Name { get; }
 
-        [JsonPropertyName("nav_caseid")]
-        public int CaseId { get; }
+        //[JsonPropertyName("nav_caseid")]
+        //public int CaseId { get; }
 
         [JsonPropertyName("statuscode")]
         public int StatusCode { get; }

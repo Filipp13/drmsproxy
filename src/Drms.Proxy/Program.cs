@@ -21,9 +21,9 @@ builder.Services.AddDRMSHttpClient(configuration);
 builder.Services.AddCRMHttpClient(configuration);
 builder.Services.AddTransient<ICRMIntegration, CRMIntegration>();
 
-builder.Services
-    .AddRabbitMQClient(configuration, environment)
-    .AddEventConsumer<NewCaseCreatedConsumer>();
+//builder.Services
+//    .AddRabbitMQClient(configuration, environment)
+//    .AddEventConsumer<NewCaseCreatedConsumer>();
 
 var app = builder.Build();
 

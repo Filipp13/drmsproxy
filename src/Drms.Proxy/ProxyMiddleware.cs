@@ -69,6 +69,8 @@ namespace Drms.Proxy
                         }
                         request.Body.Position = 0;
 
+                        logger.LogInformation(Encoding.UTF8.GetString(buffer));
+
                         var drmsResponse = new byte[0];
 
                         if (commonOptions.EnableProxy)
